@@ -10,7 +10,7 @@ const Navi = createAppContainer(Nav);
  export default class App extends Component {
   constructor() {
     super();
-    AudioStore.testSave();
+    AudioStore.initializeDir();
   }
   
   render() {

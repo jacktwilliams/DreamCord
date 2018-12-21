@@ -12,6 +12,7 @@ import {
 
 import Sound from 'react-native-sound';
 import {AudioRecorder, AudioUtils} from 'react-native-audio';
+import AudioStore from '../utility/AudioStore';
 
 class AudioExample extends Component {
 
@@ -122,6 +123,11 @@ class AudioExample extends Component {
 
         if (Platform.OS === 'android') {
           this._finishRecording(true, filePath);
+          AudioStore.testRecorder(filePath);
+          AudioStore.countRecordings()
+          .then((result) => {
+            console.log("Count recordings: " + result);
+          });
         }
         return filePath;
       } catch (error) {
