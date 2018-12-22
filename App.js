@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { AppRegistry, View } from 'react-native'
-import Nav from './navigator';
+import Nav from './utility/navigator';
 import {createAppContainer} from 'react-navigation';
 import { Home } from './pages/Home.js';
 import AudioStore from './utility/AudioStore';

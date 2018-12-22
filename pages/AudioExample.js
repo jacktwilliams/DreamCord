@@ -15,7 +15,6 @@ import {AudioRecorder, AudioUtils} from 'react-native-audio';
 import AudioStore from '../utility/AudioStore';
 
 class AudioExample extends Component {
-
     state = {
       currentTime: 0.0,
       recording: false,
@@ -128,11 +127,18 @@ class AudioExample extends Component {
           .then((result) => {
             console.log("Count recordings: " + result);
           });
-        }
-        return filePath;
-      } catch (error) {
-        console.error(error);
+          AudioStore.saveRecording(filePath);
+          this.props.navigation.navigate('SaveRecording');
+
+          return filePath;
+        }     
       }
+      catch (error) {
+        console.error(error);
+      } 
+
+
+      
     }
 
     async _play() {
