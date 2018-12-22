@@ -122,13 +122,13 @@ class AudioExample extends Component {
 
         if (Platform.OS === 'android') {
           this._finishRecording(true, filePath);
-          AudioStore.testRecorder(filePath);
-          AudioStore.countRecordings()
-          .then((result) => {
-            console.log("Count recordings: " + result);
-          });
-          AudioStore.saveRecording(filePath);
-          this.props.navigation.navigate('SaveRecording');
+          
+          AudioStore.saveRecording(filePath)
+          .then((recordId) => {
+            console.log("RecordPage " + recordId);
+            this.props.navigation.navigate('SaveRecording', {recordId : recordId});
+          }) //returns the number id of dream we save
+
 
           return filePath;
         }     

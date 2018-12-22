@@ -68,29 +68,34 @@ export default class AudioStore {
     var handleError = () => {
       console.log("Error saving your recording.");
     }
-    var recordCount;
-    this.countRecordings()
-    .then((count) => {
-      recordCount = count;
-    })
-    .finally(() => {
-      var newLoc = ourDir + "dream" + (recordCount + 1) + ".aac";
-      console.log("Moving " + path + "\nTo " + newLoc);
-
-      RNFetchBlob.fs.mv(path, newLoc)
-      .then((error) => {
-        console.log("MV: " + error);
-        if(error) { //promise value seems to be undefined even upon success. Assume error if "True" ?
-          handleError();
-        }
-        else {
-          console.log("Recording saved to " + newLoc);
-        }
+    return new Promise(
+      this.countRecordings()
+      .then((count) => {
+        recordCount = count;
       })
-    })
-    .catch(() => {
-      handleError();
-    });
+      .finally(() => {
+        var newLoc = ourDir + "dream" + (recordCount + 1) + ".aac";
+        console.log("Moving " + path + "\nTo " + newLoc);
+
+        RNFetchBlob.fs.mv(path, newLoc)
+        .then((error) => {
+          console.log("MV: " + error);
+          if(error) { //promise value seems to be undefined even upon success. Assume error if "True" ?
+            handleError();
+            reject("Error saving your recording.");
+          }
+          else {
+            console.log("Recording saved to " + newLoc);
+            resolve(recordCount + 1);
+          }
+        })
+      })
+      .catch(() => {
+        handleError();
+        reject("Error saving your recording.");
+      })
+    );
+
   }
 
 }

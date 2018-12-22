@@ -4,6 +4,7 @@ import Nav from './utility/navigator';
 import {createAppContainer} from 'react-navigation';
 import { Home } from './pages/Home.js';
 import AudioStore from './utility/AudioStore';
+import DreamStore from './utility/DreamStore';
 
 const Navi = createAppContainer(Nav);
 
@@ -11,6 +12,7 @@ const Navi = createAppContainer(Nav);
   constructor() {
     super();
     AudioStore.initializeDir();
+    DreamStore.initializeDreamList();
   }
   
   render() {
