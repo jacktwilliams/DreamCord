@@ -55,7 +55,7 @@ export default class SaveRecording extends Component {
     }
    }
 
-   var styles = StyleSheet.create({
+var styles = StyleSheet.create({
   container: {
     flex: 1,
   },
