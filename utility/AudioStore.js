@@ -1,7 +1,7 @@
 import RNFetchBlob from 'react-native-fetch-blob';
 
 const fs = RNFetchBlob.fs;
-const ourDir = fs.dirs.DocumentDir + "/DreamCord/";
+const OURDIR = fs.dirs.DocumentDir + "/DreamCord/";
 
 export default class AudioStore {
 
@@ -31,17 +31,17 @@ export default class AudioStore {
       console.log("Our directory initialized succesfully.");
     };
 
-    RNFetchBlob.fs.isDir(ourDir)
+    RNFetchBlob.fs.isDir(OURDIR)
     .then((exist) => {
       if(exist) {
         logSuccess();
         return;
       }
       else {
-        fs.mkdir(ourDir)
+        fs.mkdir(OURDIR)
         .then(() => {
           //also put a file in directory
-          this.testSave(ourDir);
+          this.testSave(OURDIR);
           logSuccess();
         })
       }
@@ -53,7 +53,7 @@ export default class AudioStore {
 
   static countRecordings() {
     return new Promise((resolve, reject) => {
-      RNFetchBlob.fs.lstat(ourDir)
+      RNFetchBlob.fs.lstat(OURDIR)
       .then((files) => {
         resolve(files.length);
       })
@@ -64,38 +64,39 @@ export default class AudioStore {
     });
   }
 
-  static saveRecording(path) {
+  static async saveRecording(path) {
     var handleError = () => {
       console.log("Error saving your recording.");
     }
-    return new Promise(
-      this.countRecordings()
-      .then((count) => {
-        recordCount = count;
-      })
-      .finally(() => {
-        var newLoc = ourDir + "dream" + (recordCount + 1) + ".aac";
-        console.log("Moving " + path + "\nTo " + newLoc);
+    try {
+      var recordCount = await this.countRecordings()
 
-        RNFetchBlob.fs.mv(path, newLoc)
-        .then((error) => {
-          console.log("MV: " + error);
-          if(error) { //promise value seems to be undefined even upon success. Assume error if "True" ?
-            handleError();
-            reject("Error saving your recording.");
-          }
-          else {
-            console.log("Recording saved to " + newLoc);
-            resolve(recordCount + 1);
-          }
-        })
-      })
-      .catch(() => {
+      var newLoc = OURDIR + "dream" + (recordCount + 1) + ".aac";
+      console.log("Moving " + path + "\nTo " + newLoc);
+      
+      var error = await RNFetchBlob.fs.mv(path, newLoc);
+      if(error) {
         handleError();
-        reject("Error saving your recording.");
-      })
-    );
-
+        return -1;
+      }
+      else {
+        console.log("Recording saved to " + newLoc);
+        return recordCount + 1;
+      }
+    }
+    catch {
+      handleError();
+    }
   }
 
+  static clearRecordings() {
+    RNFetchBlob.fs.ls(OURDIR)
+    .then((files) => {
+      for(var i = 0; i < files.length; ++i) {
+        var file = files[i];
+        console.log(file);
+        RNFetchBlob.fs.unlink(OURDIR + file);
+      }
+    })
+  }
 }

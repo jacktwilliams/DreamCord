@@ -7,6 +7,7 @@ const DreamListKey = "dreamList";
 export default class SaveRecording extends Component {
   constructor(props) {
     super(props);
+    this.handlePress = this.handlePress.bind(this);
     this.state = { 
       title: 'Useless Placeholder',
       recordId: this.props.navigation.getParam("recordId", -1),     
@@ -20,9 +21,14 @@ export default class SaveRecording extends Component {
       AsyncStorage.getItem(DreamListKey)
       .then((DList) => {
         var DreamList = JSON.parse(DList);
-        console.log("DREAM LIST: " + DreamList);
+        console.log("DREAM LIST: " + JSON.stringify(DreamList));
+
         var record = DreamStore.makeRecord(this.state.recordId, this.state.title);
-        AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList.push(record)));
+        DreamList.unshift(record)
+        console.log("newDL: " + JSON.stringify(DreamList));
+
+        AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList));
+        this.props.navigation.navigate("Home");
       })
     }
     catch {
@@ -41,7 +47,7 @@ export default class SaveRecording extends Component {
         />
 
         <Button
-          onPress={this.handlePress}
+          onPress={() => {this.handlePress()}}
           title="Press Me"
         />
       </View>

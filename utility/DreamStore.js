@@ -3,7 +3,16 @@ import { AsyncStorage } from "react-native"
 const store = AsyncStorage;
 const DreamListKey = "dreamList";
 export default class DreamStore {
-  
+
+  static makeRecord(recordId, title) {
+    var record = {
+      id:recordId, 
+      title:title
+    }
+    console.log("NEW RECORD: " + JSON.stringify(record));
+    return record;
+  }
+
   static initializeDreamList() {
     try {
       store.getAllKeys()
@@ -12,7 +21,8 @@ export default class DreamStore {
           console.log("Successful AsyncStore initialization. List exists.");
         }
         else {
-          store.setItem(DreamListKey, JSON.stringify(new Array())); //TODO: not sure if this is bad style..
+          var dl = [this.makeRecord(1, "BEST D EVER")]
+          store.setItem(DreamListKey, JSON.stringify(dl)); 
         }
       });
     }
@@ -21,7 +31,4 @@ export default class DreamStore {
     }
   }
 
-  static makeRecord(recordId, title) {
-    return {id : recordId, title : title};
-  }
 }

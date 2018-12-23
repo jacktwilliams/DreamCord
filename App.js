@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { AppRegistry, View } from 'react-native'
+import { AppRegistry, View, AsyncStorage } from 'react-native'
 import Nav from './utility/navigator';
 import {createAppContainer} from 'react-navigation';
 import { Home } from './pages/Home.js';
