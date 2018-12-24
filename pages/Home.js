@@ -7,18 +7,18 @@ export default class Home extends Component {
   constructor() {
     super();
     this.state = {
-      dreamList: [{title: "Test test", id: 0}],
+      dreamList: [],
       refresh: false, //tells flatList to re-render
-      selectedDreams: [],
+      selectedDreams: new Set(),
     };
 
     DreamStore.getDreamList()
-      .then((list) => {
-        this.setState({
-          dreamList: list,
-          refresh: !this.state.refresh
-        });
+    .then((list) => {
+      this.setState({
+        dreamList: list,
+        refresh: !this.state.refresh
       });
+    });
 
     this._renderRecord = this._renderRecord.bind(this);
     this.handleRecordPress = this.handleRecordPress.bind(this);
@@ -27,28 +27,23 @@ export default class Home extends Component {
 
   handleRecordPress(id) {
     //toggle record id's inclusion in set of selected records
-    if(this.state.selectedDreams.includes(id)) {
-      var index = this.state.selectedDreams.indexOf(id);
-      var newSelected = this.state.selectedDreams;
-      newSelected[index] = -1;
-      this.setState({
-        selectedDreams: newSelected,
-        refresh: !this.state.refresh
-      });
+    let selected = this.state.selectedDreams;
+
+    if(selected.has(id)) {
+      selected.delete(id);
     }
     else {
-      var newSelected = this.state.selectedDreams;
-      newSelected.push(id);
-      this.setState({
-        selectedDreams: newSelected,
-        refresh: !this.state.refresh
-      })
+      selected.add(id);
     }
+
+    this.setState({
+      refresh: !this.state.refresh
+    });
     
   }
 
   _renderRecord(record) {
-    if(this.state.selectedDreams.includes(record.item.id)) {
+    if(this.state.selectedDreams.has(record.item.id)) {
       return (
         <View style={styles.recordCont}>
           <TouchableOpacity onPress={() => {this.handleRecordPress(record.item.id)}}>
