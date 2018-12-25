@@ -7,12 +7,13 @@ const DreamListKey = "dreamList";
 export default class SaveRecording extends Component {
   constructor(props) {
     super(props);
-    this.handlePress = this.handlePress.bind(this);
     this.state = { 
       title: 'Useless Placeholder',
       recordId: this.props.navigation.getParam("recordId", -1),     
     };
+
     console.log("Record ID: " + this.state.recordId);
+    this.handlePress = this.handlePress.bind(this);
   }
 
   handlePress() {
@@ -20,19 +21,21 @@ export default class SaveRecording extends Component {
       //update our dream record list with a new record corresponding with the recording we saved.
       AsyncStorage.getItem(DreamListKey)
       .then((DList) => {
-        var DreamList = JSON.parse(DList);
+        let DreamList = JSON.parse(DList);
         console.log("DREAM LIST: " + JSON.stringify(DreamList));
 
-        var record = DreamStore.makeRecord(this.state.recordId, this.state.title);
+        let record = DreamStore.makeRecord(this.state.recordId, this.state.title);
         DreamList.unshift(record)
         console.log("newDL: " + JSON.stringify(DreamList));
 
         AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList));
         this.props.navigation.navigate("Home");
-      })
+      });
     }
     catch {
       console.log("Error saving recording record.");
+      //TODO: Maybe move the recording to purgatory.
+      this.props.navigation.navigate("HOME");
     }
   }
 

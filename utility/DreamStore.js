@@ -1,11 +1,11 @@
 import { AsyncStorage } from "react-native"
 
-const store = AsyncStorage;
+const STORE = AsyncStorage;
 const DREAMLISTKEY = "dreamList";
 export default class DreamStore {
 
   static makeRecord(recordId, title) {
-    var record = {
+    let record = {
       id: recordId, 
       title: title
     }
@@ -15,25 +15,36 @@ export default class DreamStore {
 
   static initializeDreamList() {
     try {
-      store.getAllKeys()
+      STORE.getAllKeys()
       .then((keys) => {
         if(keys.includes(DREAMLISTKEY)) {
           console.log("Successful AsyncStore initialization. List exists.");
         }
         else {
-          var dl = [this.makeRecord(1, "BEST D EVER")]
-          store.setItem(DREAMLISTKEY, JSON.stringify(dl)); 
+          let dl = [];
+          STORE.setItem(DREAMLISTKEY, JSON.stringify(dl)); 
+          console.log("Successful AsyncStore initialization. Starting with an empty list.");
         }
       });
     }
-    catch {
-      console.log("Error initializing a Dream list in the Async Storage.");
+    catch (e) {
+      console.log("Error initializing a Dream list in the Async Storage: \n" + e);
     }
   }
 
   static async getDreamList() {
-    var listText = await store.getItem(DREAMLISTKEY);
+    let listText = await STORE.getItem(DREAMLISTKEY);
     return JSON.parse(listText);
+  }
+
+  static clearDreamList() {
+    STORE.removeItem(DREAMLISTKEY)
+    .then(() => {
+      console.log("Removed dream list from storage.");
+    })
+    .catch((error) => {
+      console.log("Error removing dream list from storage: \n" + error);
+    })
   }
 
 }

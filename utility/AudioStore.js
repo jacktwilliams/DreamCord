@@ -10,7 +10,7 @@ export default class AudioStore {
     .then((exist) => {
       console.log(`file ${exist ? '' : 'not'} exists`);
     })
-    .catch(() => {console.log("There was an error.")})
+    .catch((e) => {console.log("There was an error: \n" + e)})
   }
 
   static testSave(dir) {
@@ -19,15 +19,14 @@ export default class AudioStore {
     .then(() => {
       console.log("File successfully created. ");
     })
-    .catch(() => {
-      console.log("Error saving file. ");
+    .catch((e) => {
+      console.log("Error saving file: \n" + e);
     })
   }
 
 
   static initializeDir() {
-    console.log("INITIALIZE!");
-    var logSuccess = () => {
+    let logSuccess = () => {
       console.log("Our directory initialized succesfully.");
     };
 
@@ -40,14 +39,12 @@ export default class AudioStore {
       else {
         fs.mkdir(OURDIR)
         .then(() => {
-          //also put a file in directory
-          this.testSave(OURDIR);
           logSuccess();
-        })
+        });
       }
     })
-    .catch(() => {
-      console.log("Issue initializing our directory.");
+    .catch((e) => {
+      console.log("Issue initializing our directory: \n" + e);
     });
   }
 
@@ -57,26 +54,26 @@ export default class AudioStore {
       .then((files) => {
         resolve(files.length);
       })
-      .catch(() => {
-        console.log("Issue counting files in our directory.");
-        reject("Issue counting recordings in our directory.");
+      .catch((e) => {
+        console.log("Issue counting files in our directory: \n" + e);
+        reject("Issue counting recordings in our directory: \n" + e);
       });
     });
   }
 
   static async saveRecording(path) {
-    var handleError = () => {
-      console.log("Error saving your recording.");
+    let handleError = (e) => {
+      console.log("Error saving your recording: \n" + e);
     }
     try {
-      var recordCount = await this.countRecordings()
+      let recordCount = await this.countRecordings()
 
-      var newLoc = OURDIR + "dream" + (recordCount + 1) + ".aac";
+      let newLoc = OURDIR + "dream" + (recordCount + 1) + ".aac";
       console.log("Moving " + path + "\nTo " + newLoc);
       
-      var error = await RNFetchBlob.fs.mv(path, newLoc);
+      let error = await RNFetchBlob.fs.mv(path, newLoc);
       if(error) {
-        handleError();
+        handleError(error);
         return -1;
       }
       else {
@@ -84,19 +81,22 @@ export default class AudioStore {
         return recordCount + 1;
       }
     }
-    catch {
-      handleError();
+    catch (e) {
+      handleError(e);
     }
   }
 
   static clearRecordings() {
     RNFetchBlob.fs.ls(OURDIR)
     .then((files) => {
-      for(var i = 0; i < files.length; ++i) {
-        var file = files[i];
-        console.log(file);
+      for(let i = 0; i < files.length; ++i) {
+        let file = files[i];
         RNFetchBlob.fs.unlink(OURDIR + file);
       }
     })
+    .catch((e) => {
+      console.log("Error cleaning directory.");
+    })
+    console.log("Directory cleared of all recordings.");
   }
 }
