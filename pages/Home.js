@@ -3,6 +3,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import DreamStore from '../utility/DreamStore';
 import AudioStore from '../utility/AudioStore';
 import Sound from 'react-native-sound';
+import { NavigationEvents } from 'react-navigation';
 
 
 export default class Home extends Component {
@@ -15,25 +16,24 @@ export default class Home extends Component {
       playbackObject: null, //so we can do operations like pause
     };
 
-    DreamStore.getDreamList()
-    .then((list) => {
-      this.setState({
-        dreamList: list,
-        refresh: !this.state.refresh
-      });
-    });
+    this.refresh(); // load dream list
 
     this._renderRecord = this._renderRecord.bind(this);
     this.handleRecordPress = this.handleRecordPress.bind(this);
     this.playback = this.playback.bind(this);
     this.pausePlayback = this.pausePlayback.bind(this);
     this.stopPlayback = this.stopPlayback.bind(this);
+    this.navigationRefresh = this.navigationRefresh.bind(this);
 
   }
 
   refresh() {
-    this.setState({
-      refresh: !this.state.refresh,
+    DreamStore.getDreamList()
+    .then((list) => {
+      this.setState({
+        dreamList: list,
+        refresh: !this.state.refresh
+      });
     });
   }
 
@@ -135,9 +135,18 @@ export default class Home extends Component {
     }
   }
 
+  //when page focuses, decide whether a refresh is needed.
+  navigationRefresh() {
+    if(this.props.navigation.getParam('refresh', false)) {
+      this.refresh();
+    }
+  }
+
   render() {
     return (
       <View style={styles.container}>
+        { /*if this page was navigated to and the refresh argument was passed, reload the FlatList */ }
+        <NavigationEvents onDidFocus={this.navigationRefresh} />
         <View style={styles.listCont}>
           <FlatList 
             data={this.state.dreamList} 

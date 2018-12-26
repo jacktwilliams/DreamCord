@@ -1,0 +1,2 @@
+Add more fields to the record like places people and things
+Ensure all recordings correspond with a record or have a lost and found area
