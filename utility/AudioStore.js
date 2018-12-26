@@ -99,4 +99,8 @@ export default class AudioStore {
     })
     console.log("Directory cleared of all recordings.");
   }
+
+  static getFileNameById(id) {
+    return OURDIR + "dream" + id + ".aac";
+  }
 }

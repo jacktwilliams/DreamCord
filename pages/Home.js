@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native'
 import DreamStore from '../utility/DreamStore';
+import AudioStore from '../utility/AudioStore';
+import Sound from 'react-native-sound';
 
 
 export default class Home extends Component {
@@ -10,6 +12,7 @@ export default class Home extends Component {
       dreamList: [],
       refresh: false, //tells flatList to re-render
       selectedDreams: new Set(),
+      playbackObject: null, //so we can do operations like pause
     };
 
     DreamStore.getDreamList()
@@ -22,7 +25,16 @@ export default class Home extends Component {
 
     this._renderRecord = this._renderRecord.bind(this);
     this.handleRecordPress = this.handleRecordPress.bind(this);
+    this.playback = this.playback.bind(this);
+    this.pausePlayback = this.pausePlayback.bind(this);
+    this.stopPlayback = this.stopPlayback.bind(this);
 
+  }
+
+  refresh() {
+    this.setState({
+      refresh: !this.state.refresh,
+    });
   }
 
   handleRecordPress(id) {
@@ -39,7 +51,56 @@ export default class Home extends Component {
     this.setState({
       refresh: !this.state.refresh
     });
-    
+  }
+
+  playback(id) {
+    let name = AudioStore.getFileNameById(id);
+    console.log(name);
+    let play = this.state.playbackObject;
+
+    if(play === null) {
+      // These timeouts are a hacky workaround for some issues with react-native-sound.
+      // See https://github.com/zmxv/react-native-sound/issues/89.
+      setTimeout(() => {
+        play = new Sound(name, '', (error) => {
+          if (error) {
+            console.log('failed to load the sound', error);
+          }
+        });
+
+        this.setState({playbackObject: play})
+
+        setTimeout(() => {
+          play.play((success) => {
+            if (success) {
+              console.log('successfully finished playing');
+            } else {
+              console.log('playback failed due to audio decoding errors');
+            }
+          });
+        }, 100);
+      }, 100);
+    }
+    else {
+      setTimeout(() => {
+        play.play((success) => {
+          if (success) {
+            console.log('successfully finished playing');
+          } else {
+            console.log('playback failed due to audio decoding errors');
+          }
+        });
+      }, 100);
+    }
+  }
+
+  pausePlayback() {
+    this.state.playbackObject.pause();
+  }
+
+  stopPlayback() {
+    this.state.playbackObject.stop();
+    this.setState({playbackObject: null});
   }
 
   _renderRecord(record) {
@@ -49,7 +110,17 @@ export default class Home extends Component {
           <TouchableOpacity onPress={() => {this.handleRecordPress(record.item.id)}}>
             <Text>{record.item.title}</Text>
           </TouchableOpacity>
-          <Text>HEY TEST</Text>
+          <View style={styles.playbackCont}>
+            <TouchableOpacity style={styles.playbackButtons} onPress={() => {this.playback(record.item.id)}}>
+              <Text>Play</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.playbackButtons} onPress={this.pausePlayback}>
+              <Text>Pause</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.playbackButtons} onPress={this.stopPlayback}>
+              <Text>Stop</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       );
     }
@@ -98,6 +169,14 @@ var styles = StyleSheet.create({
     borderBottomColor: 'black',
     borderBottomWidth: 2,
     padding: '3%',
-
-  }
+  },
+  playbackCont: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  playbackButtons: {
+    marginRight: '2%',
+    borderColor: 'black',
+    borderWidth: 2,
+  },
 });

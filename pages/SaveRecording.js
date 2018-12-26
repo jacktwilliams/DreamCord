@@ -29,13 +29,14 @@ export default class SaveRecording extends Component {
         console.log("newDL: " + JSON.stringify(DreamList));
 
         AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList));
-        this.props.navigation.navigate("Home");
+        this.props.navigation.navigate("Home", {refresh: true});
       });
     }
     catch {
       console.log("Error saving recording record.");
       //TODO: Maybe move the recording to purgatory.
-      this.props.navigation.navigate("HOME");
+      this.props.navigation.navigate("HOME", {refresh: true});
+
     }
   }
 

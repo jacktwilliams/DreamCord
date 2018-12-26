@@ -1,3 +1,4 @@
+/* Handles the AsyncStorage operations. We are storing a list of records which correspond to audio files we have saved on the device */
 import { AsyncStorage } from "react-native"
 
 const STORE = AsyncStorage;
