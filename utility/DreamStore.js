@@ -6,9 +6,11 @@ const DREAMLISTKEY = "dreamList";
 export default class DreamStore {
 
   static makeRecord(recordId, title) {
+    let date = date ? date : new Date();
     let record = {
       id: recordId, 
-      title: title
+      title: title,
+      date: Date.parse(date.toUTCString()), //store milliseconds and we can construct a new object on other end
     }
     console.log("NEW RECORD: " + JSON.stringify(record));
     return record;
@@ -32,10 +34,34 @@ export default class DreamStore {
       console.log("Error initializing a Dream list in the Async Storage: \n" + e);
     }
   }
-
+  /*
   static async getDreamList() {
     let listText = await STORE.getItem(DREAMLISTKEY);
-    return JSON.parse(listText);
+    let list = JSON.parse(listText);
+    console.log(list);
+    this.convertDates(list);
+    return list;
+  }
+  */
+
+  static async getDreamList() {
+    return new Promise((resolve, reject) => {
+      STORE.getItem(DREAMLISTKEY)
+      .then((listText) => {
+        let list = JSON.parse(listText);
+        this.convertDates(list);
+        resolve(list);
+      })
+      .catch((e) => {
+        console.log("ERROR getting dream list from storage: \n" + e);
+      });
+    });
+  }
+
+  static convertDates(dreamL) {
+    for(let i = 0; i < dreamL.length; ++i) {
+      dreamL[i].date = new Date(JSON.parse(dreamL[i].date));
+    }
   }
 
   static clearDreamList() {

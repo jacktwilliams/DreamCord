@@ -11,8 +11,14 @@ const Navi = createAppContainer(Nav);
  export default class App extends Component {
   constructor() {
     super();
+    //this.clear();
     AudioStore.initializeDir();
     DreamStore.initializeDreamList();
+  }
+
+  clear() {
+    DreamStore.clearDreamList();
+    AudioStore.clearRecordings();
   }
   
   render() {

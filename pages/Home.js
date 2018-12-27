@@ -110,6 +110,9 @@ export default class Home extends Component {
           <TouchableOpacity onPress={() => {this.handleRecordPress(record.item.id)}}>
             <Text>{record.item.title}</Text>
           </TouchableOpacity>
+          <View style={styles.infoCont}>
+            <Text>{record.item.date.toDateString()}</Text>
+          </View> 
           <View style={styles.playbackCont}>
             <TouchableOpacity style={styles.playbackButtons} onPress={() => {this.playback(record.item.id)}}>
               <Text>Play</Text>
