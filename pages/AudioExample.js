@@ -1,4 +1,3 @@
-/*Author: not me! Check liscense */
 import React, {Component} from 'react';
 
 import {

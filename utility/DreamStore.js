@@ -5,8 +5,7 @@ const STORE = AsyncStorage;
 const DREAMLISTKEY = "dreamList";
 export default class DreamStore {
 
-  static makeRecord(recordId, title) {
-    let date = date ? date : new Date();
+  static makeRecord(recordId, title, date) {
     let record = {
       id: recordId, 
       title: title,
