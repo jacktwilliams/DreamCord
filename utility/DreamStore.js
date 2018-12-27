@@ -59,7 +59,7 @@ export default class DreamStore {
 
   static convertDates(dreamL) {
     for(let i = 0; i < dreamL.length; ++i) {
-      dreamL[i].date = new Date(JSON.parse(dreamL[i].date));
+      dreamL[i].date = new Date(JSON.parse(dreamL[i].date)); //was saved to Storage as milliseconds
     }
   }
 
