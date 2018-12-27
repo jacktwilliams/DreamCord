@@ -11,12 +11,14 @@ export default class Home extends Component {
     super();
     this.state = {
       dreamList: [],
+      filteredList: [],
       refresh: false, //tells flatList to re-render
       selectedDreams: new Set(),
       playbackObject: null, //so we can do operations like pause
     };
 
-    this.refresh(); // load dream list
+    this.refreshList(); // load dream list
+
 
     this._renderRecord = this._renderRecord.bind(this);
     this.handleRecordPress = this.handleRecordPress.bind(this);
@@ -24,16 +26,45 @@ export default class Home extends Component {
     this.pausePlayback = this.pausePlayback.bind(this);
     this.stopPlayback = this.stopPlayback.bind(this);
     this.navigationRefresh = this.navigationRefresh.bind(this);
-
   }
 
-  refresh() {
+  refreshList() {
     DreamStore.getDreamList()
     .then((list) => {
       this.setState({
         dreamList: list,
+        filteredList: list,
         refresh: !this.state.refresh
       });
+    });
+  }
+
+  filterBySingleFieldValue(field, fieldVal) {
+    /* This method is for the quick filtering functionality on the homepage.
+       For example, when the user clicks the name of a person who was in a dream.
+       The touchtarget will pass in the 'field' which is 'people' in this instance 
+       This field name maps to a function which says whether to include the record in the filtered list */
+    let byPeople = function (record, name) {
+      return record.people.includes(name);
+    }
+    let inclusionFuncPerField = new Map([
+      ['people', byPeople],
+    ]);
+
+    //console.log(inclusionFuncPerField.get('people'));
+ 
+    let filtered = [];
+    let full = this.state.dreamList;
+    full.forEach((record) => {
+      if(inclusionFuncPerField.get(field)(record, fieldVal)) {
+        filtered.push(record);
+      }
+    });
+
+    
+    this.setState({
+      filteredList: filtered,
+      refresh: !this.state.refresh
     });
   }
 
@@ -109,7 +140,7 @@ export default class Home extends Component {
       for(let i = 0; i < record.item.people.length; ++i) {
         let name=record.item.people[i];
         let touchable = (
-          <TouchableOpacity key={i}>
+          <TouchableOpacity style={styles.personTag} key={i} onPress={() => {this.filterBySingleFieldValue('people', name)}}>
             <Text>{name}</Text>
           </TouchableOpacity>
         );
@@ -123,7 +154,10 @@ export default class Home extends Component {
           </TouchableOpacity>
           <View style={styles.infoCont}>
             <Text>{record.item.date.toDateString()}</Text>
-            {peopleTags}
+            <View style={styles.peopleCont}>
+              <Text key={-1} style={{marginRight: '2%'}}>People: </Text>
+              {peopleTags}
+            </View>
           </View> 
           <View style={styles.playbackCont}>
             <TouchableOpacity style={styles.playbackButtons} onPress={() => {this.playback(record.item.id)}}>
@@ -153,7 +187,7 @@ export default class Home extends Component {
   //when page focuses, decide whether a refresh is needed.
   navigationRefresh() {
     if(this.props.navigation.getParam('refresh', false)) {
-      this.refresh();
+      this.refreshList();
     }
   }
 
@@ -164,7 +198,7 @@ export default class Home extends Component {
         <NavigationEvents onDidFocus={this.navigationRefresh} />
         <View style={styles.listCont}>
           <FlatList 
-            data={this.state.dreamList} 
+            data={this.state.filteredList} 
             extraData={this.state.refresh}
             keyExtractor = {(item) => {return item.id.toString()}}
             renderItem={this._renderRecord} 
@@ -202,5 +236,17 @@ var styles = StyleSheet.create({
     marginRight: '2%',
     borderColor: 'black',
     borderWidth: 2,
+  },
+  peopleCont: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: '2%',
+  },
+  personTag: {
+    paddingLeft: '1%',
+    paddingRight: '1%',
+    borderWidth: 1,
+    borderColor: 'grey',
+    marginRight: '2%',
   },
 });
