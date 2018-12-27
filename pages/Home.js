@@ -64,7 +64,7 @@ export default class Home extends Component {
       setTimeout(() => {
         play = new Sound(name, '', (error) => {
           if (error) {
-            console.log('failed to load the sound', error);
+            console.log('failed to load the sound: \n' +  error);
           }
         });
 
@@ -105,6 +105,17 @@ export default class Home extends Component {
 
   _renderRecord(record) {
     if(this.state.selectedDreams.has(record.item.id)) {
+      let peopleTags = [];
+      for(let i = 0; i < record.item.people.length; ++i) {
+        let name=record.item.people[i];
+        let touchable = (
+          <TouchableOpacity key={i}>
+            <Text>{name}</Text>
+          </TouchableOpacity>
+        );
+        peopleTags.push(touchable);
+      }
+
       return (
         <View style={styles.recordCont}>
           <TouchableOpacity onPress={() => {this.handleRecordPress(record.item.id)}}>
@@ -112,6 +123,7 @@ export default class Home extends Component {
           </TouchableOpacity>
           <View style={styles.infoCont}>
             <Text>{record.item.date.toDateString()}</Text>
+            {peopleTags}
           </View> 
           <View style={styles.playbackCont}>
             <TouchableOpacity style={styles.playbackButtons} onPress={() => {this.playback(record.item.id)}}>

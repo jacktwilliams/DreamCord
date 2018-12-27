@@ -15,6 +15,7 @@ export default class SaveRecording extends Component {
       title: '',
       recordId: this.props.navigation.getParam("recordId", -1),  
       date: Dates.dateToPickerFormat(today),
+      people: '',
     };
 
     this.handlePress = this.handlePress.bind(this);
@@ -26,8 +27,8 @@ export default class SaveRecording extends Component {
       AsyncStorage.getItem(DreamListKey)
       .then((DList) => {
         let DreamList = JSON.parse(DList);
-        let record = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date));
-        DreamList.unshift(record)
+        let record = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people);
+        DreamList.unshift(record);
 
         AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList));
         this.props.navigation.navigate("Home", {refresh: true});
@@ -73,6 +74,16 @@ export default class SaveRecording extends Component {
               dateInput: {
                 marginLeft: 36
               }}}
+          />
+        </View>
+
+        <View style={styles.inputCont}>
+          <Text style={styles.labelText}>People</Text>
+          <TextInput
+            style={[styles.textIn, styles.inputObj]}
+            onChangeText={(text) => this.setState({people: text})}
+            placeholder="People who were involved"
+            value={this.state.people}
           />
         </View>
 
