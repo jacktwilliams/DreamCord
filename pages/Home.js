@@ -134,17 +134,24 @@ export default class Home extends Component {
     this.setState({playbackObject: null});
   }
 
+  //TODO: immediately simplify record.item.x
   _renderRecord(record) {
     if(this.state.selectedDreams.has(record.item.id)) {
+      //for now it is simpler to have the people list's initial state in SaveRecording be '' instead of null
+      //and to handle this here.
       let peopleTags = [];
+      let thereArePeople = false;
       for(let i = 0; i < record.item.people.length; ++i) {
         let name=record.item.people[i];
-        let touchable = (
-          <TouchableOpacity style={styles.personTag} key={i} onPress={() => {this.filterBySingleFieldValue('people', name)}}>
-            <Text>{name}</Text>
-          </TouchableOpacity>
-        );
-        peopleTags.push(touchable);
+        if(name != ['']) {
+          thereArePeople = true; // there is at least one person.
+          let touchable = (
+            <TouchableOpacity style={styles.personTag} key={i} onPress={() => {this.filterBySingleFieldValue('people', name)}}>
+              <Text>{name}</Text>
+            </TouchableOpacity>
+          );
+          peopleTags.push(touchable);
+        }
       }
 
       return (
@@ -155,7 +162,7 @@ export default class Home extends Component {
           <View style={styles.infoCont}>
             <Text>{record.item.date.toDateString()}</Text>
             <View style={styles.peopleCont}>
-              <Text key={-1} style={{marginRight: '2%'}}>People: </Text>
+              <Text key={-1} style={{marginRight: '2%'}}>{thereArePeople ? "People: " : ""}</Text>
               {peopleTags}
             </View>
           </View> 
