@@ -47,8 +47,13 @@ export default class Home extends Component {
     let byPeople = function (record, name) {
       return record.people.includes(name);
     }
+    let byDate = function (record, date) {
+      return record.date.toDateString() === date.toDateString()
+    }
+    //closest thing to Map literal syntax
     let inclusionFuncPerField = new Map([
       ['people', byPeople],
+      ['date', byDate],
     ]);
 
     //console.log(inclusionFuncPerField.get('people'));
@@ -134,15 +139,15 @@ export default class Home extends Component {
     this.setState({playbackObject: null});
   }
 
-  //TODO: immediately simplify record.item.x
   _renderRecord(record) {
-    if(this.state.selectedDreams.has(record.item.id)) {
-      //for now it is simpler to have the people list's initial state in SaveRecording be '' instead of null
-      //and to handle this here.
+    record = record.item;
+    if(this.state.selectedDreams.has(record.id)) {
       let peopleTags = [];
       let thereArePeople = false;
-      for(let i = 0; i < record.item.people.length; ++i) {
-        let name=record.item.people[i];
+      for(let i = 0; i < record.people.length; ++i) {
+        let name=record.people[i];
+        //for now it is simpler to have the people list's initial state in SaveRecording be '' instead of null
+        //and to handle this here.
         if(name != ['']) {
           thereArePeople = true; // there is at least one person.
           let touchable = (
@@ -156,18 +161,22 @@ export default class Home extends Component {
 
       return (
         <View style={styles.recordCont}>
-          <TouchableOpacity onPress={() => {this.handleRecordPress(record.item.id)}}>
-            <Text>{record.item.title}</Text>
+          <TouchableOpacity onPress={() => {this.handleRecordPress(record.id)}}>
+            <Text>{record.title}</Text>
           </TouchableOpacity>
           <View style={styles.infoCont}>
-            <Text>{record.item.date.toDateString()}</Text>
+            <View style={styles.dateCont}>
+              <TouchableOpacity style={styles.dateButton} onPress={() => {this.filterBySingleFieldValue('date', record.date)}}>
+                <Text>{record.date.toDateString()}</Text>
+              </TouchableOpacity>
+            </View>
             <View style={styles.peopleCont}>
               <Text key={-1} style={{marginRight: '2%'}}>{thereArePeople ? "People: " : ""}</Text>
               {peopleTags}
             </View>
           </View> 
           <View style={styles.playbackCont}>
-            <TouchableOpacity style={styles.playbackButtons} onPress={() => {this.playback(record.item.id)}}>
+            <TouchableOpacity style={styles.playbackButtons} onPress={() => {this.playback(record.id)}}>
               <Text>Play</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.playbackButtons} onPress={this.pausePlayback}>
@@ -183,8 +192,8 @@ export default class Home extends Component {
     else {
       return (
         <View style={styles.recordCont}>
-          <TouchableOpacity onPress={() => {this.handleRecordPress(record.item.id)}}>
-            <Text>{record.item.title}</Text>
+          <TouchableOpacity onPress={() => {this.handleRecordPress(record.id)}}>
+            <Text>{record.title}</Text>
           </TouchableOpacity>
         </View>
       );
@@ -256,4 +265,9 @@ var styles = StyleSheet.create({
     borderColor: 'grey',
     marginRight: '2%',
   },
+  dateButton: {
+    borderWidth: 2,
+    borderColor: 'black',
+
+  }
 });

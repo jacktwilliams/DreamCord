@@ -12,9 +12,12 @@ import {
 import Sound from 'react-native-sound';
 import {AudioRecorder, AudioUtils} from 'react-native-audio';
 import AudioStore from '../utility/AudioStore';
+import { NavigationEvents } from 'react-navigation';
 
 class AudioExample extends Component {
-    state = {
+  constructor(props) {
+    super(props);
+    this.state = {
       currentTime: 0.0,
       recording: false,
       paused: false,
@@ -23,6 +26,10 @@ class AudioExample extends Component {
       audioPath: AudioUtils.DocumentDirectoryPath + '/test.aac',
       hasPermission: undefined,
     };
+
+    this.navigationReset = this.navigationReset.bind(this);
+  }
+
 
     prepareRecordingPath(audioPath){
       AudioRecorder.prepareRecordingAtPath(audioPath, {
@@ -195,10 +202,21 @@ class AudioExample extends Component {
       console.log(`Finished recording of duration ${this.state.currentTime} seconds at path: ${filePath} and size of ${fileSize || 0} bytes`);
     }
 
+    navigationReset() {
+      console.log("DID FOCUS");
+      if(this.props.navigation && this.props.navigation.getParam("reset", false)) {
+        console.log("NAVIGATION PROPS PRESENT");
+        this.props.navigation.navigate("Home", {refresh: true});
+      }
+    }
+
     render() {
 
       return (
         <View style={styles.container}>
+          { /*Upon a successfully saved recording, this page will be navigated to. If the reset param was set,
+            we will navigate home and request a refresh */ }
+          <NavigationEvents onDidFocus={this.navigationReset} />
           <View style={styles.controls}>
             {this._renderButton("RECORD", () => {this._record()}, this.state.recording )}
             {this._renderButton("PLAY", () => {this._play()} )}

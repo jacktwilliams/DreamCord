@@ -35,7 +35,9 @@ export default class SaveRecording extends Component {
         //head back to home and wipe our actions
         const resetAction = StackActions.reset({
           index: 0,
-          actions: [NavigationActions.navigate({ routeName: 'Record' })],
+          //Home is not on this nav stack. Adding it doesn't work well. We will navigate to Record page,
+          // and request that it sends us home with the refresh param flipped on
+          actions: [NavigationActions.navigate({ routeName: 'Record', params: {reset: true} })],
         });
         this.props.navigation.dispatch(resetAction);
       });
