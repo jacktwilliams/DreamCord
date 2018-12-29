@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, Button, AsyncStorage, Dimensions } f
 import DreamStore from '../utility/DreamStore';
 import DatePicker from 'react-native-datepicker';
 import Dates from '../utility/Dates';
+import { StackActions, NavigationActions } from 'react-navigation';
 
 const DreamListKey = "dreamList";
 
@@ -31,7 +32,12 @@ export default class SaveRecording extends Component {
         DreamList.unshift(record);
 
         AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList));
-        this.props.navigation.navigate("Home", {refresh: true});
+        //head back to home and wipe our actions
+        const resetAction = StackActions.reset({
+          index: 0,
+          actions: [NavigationActions.navigate({ routeName: 'Record' })],
+        });
+        this.props.navigation.dispatch(resetAction);
       });
     }
     catch(e) {
