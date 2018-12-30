@@ -6,6 +6,8 @@ import Sound from 'react-native-sound';
 import { NavigationEvents, withNavigation } from 'react-navigation';
 import NavigationService from '../utility/NavigationService';
 
+//TODO: get rid of HeaderBar class. Instead of overriding whole header of react navigation, use headerRight static option
+//https://reactnavigation.org/docs/en/header-buttons.html#customizing-the-back-button
 class HeaderBar extends Component {
   constructor(props) {
     super(props);
@@ -165,6 +167,7 @@ export default class Home extends Component {
       }, 100);
     }
     else {
+      //if not null, then just play(). TODO: look at refactoring.
       setTimeout(() => {
         play.play((success) => {
           if (success) {
@@ -247,8 +250,16 @@ export default class Home extends Component {
     }
   }
 
-  //when page focuses, decide whether a refresh is needed.
   navigationRefresh() {
+    //when page focuses, see if a filtered List was passed
+    let filteredList = this.props.navigation.getParam("filteredList", null);
+    if(filteredList) {
+      this.setState({
+        filteredList: filteredList,
+        refresh: !this.state.refresh,
+      });
+    }
+    //when page focuses, decide whether a refresh is needed.
     if(this.props.navigation.getParam('refresh', false)) {
       this.refreshList();
     }
