@@ -3,12 +3,57 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native
 import DreamStore from '../utility/DreamStore';
 import AudioStore from '../utility/AudioStore';
 import Sound from 'react-native-sound';
-import { NavigationEvents } from 'react-navigation';
+import { NavigationEvents, withNavigation } from 'react-navigation';
+import NavigationService from '../utility/NavigationService';
 
+class HeaderBar extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  goToFiltering() {
+    NavigationService.navigate("Filtering");
+  }
+
+  render() {
+    let styles = headStyles;
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Dreams</Text>
+        <TouchableOpacity style={styles.filterButton} onPress={this.goToFiltering}>
+          <Text>Filter Page</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+}
+
+var headStyles = StyleSheet.create({
+  container: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 20,
+    marginLeft: '2%',
+  },
+  filterButton: {
+    borderColor: 'black',
+    borderWidth: 2,
+    marginRight: '2%',
+  }
+});
 
 export default class Home extends Component {
-  constructor() {
-    super();
+  
+  static navigationOptions = {
+    headerTitle: HeaderBar,
+  }
+
+  constructor(props) {
+    super(props);
     this.state = {
       dreamList: [],
       filteredList: [],
@@ -16,6 +61,8 @@ export default class Home extends Component {
       selectedDreams: new Set(),
       playbackObject: null, //so we can do operations like pause
     };
+
+    console.log("HOME PROPS: \n" + JSON.stringify(this.props));
 
     this.refreshList(); // load dream list
 

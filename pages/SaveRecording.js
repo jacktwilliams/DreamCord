@@ -45,7 +45,7 @@ export default class SaveRecording extends Component {
     catch(e) {
       console.log("Error saving recording record: \n" + e);
       //TODO: Maybe move the recording to purgatory.
-      this.props.navigation.navigate("HOME", {refresh: true});
+      this.props.navigation.navigate("Home", {refresh: true});
     }
   }
 

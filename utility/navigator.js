@@ -2,6 +2,7 @@ import {createBottomTabNavigator, createAppContainer, createStackNavigator} from
 import AudioExample from '../pages/AudioExample';
 import Home from '../pages/Home';
 import SaveRecording from '../pages/SaveRecording';
+import Filtering from '../pages/Filtering';
 import { View} from 'react-native'
 
 const RecordNav = createStackNavigator({
@@ -11,9 +12,17 @@ const RecordNav = createStackNavigator({
 {
   initialRouteName: "Record"
 });
+
+const HomeNav = createStackNavigator({
+  Home: Home,
+  Filtering: Filtering,
+},
+{
+  initialRouteName: "Home"
+});
 const Nav = createBottomTabNavigator(
   {
-    Home: Home,
+    Home: HomeNav,
     Record: RecordNav,
   });
   

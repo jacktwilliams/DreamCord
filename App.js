@@ -5,6 +5,7 @@ import {createAppContainer} from 'react-navigation';
 import { Home } from './pages/Home.js';
 import AudioStore from './utility/AudioStore';
 import DreamStore from './utility/DreamStore';
+import NavigationService from './utility/NavigationService';
 
 const Navi = createAppContainer(Nav);
 
@@ -21,10 +22,15 @@ const Navi = createAppContainer(Nav);
     AudioStore.clearRecordings();
   }
   
+  //NavigationService allows you to navigate from anywhere, without the nav prop.
   render() {
-     return <Navi />;
-    }
+    return (
+      <Navi ref={navigatorRef => {
+        NavigationService.setTopLevelNavigator(navigatorRef);
+      }} />
+    );
   }
+}
 
   AppRegistry.registerComponent('AwesomeProject', () => App);
 
