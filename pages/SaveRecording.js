@@ -33,6 +33,7 @@ export default class SaveRecording extends Component {
 
         AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList));
         //head back to home and wipe our actions
+        console.log("Heading home. Page should reset.");
         const resetAction = StackActions.reset({
           index: 0,
           //Home is not on this nav stack. Adding it doesn't work well. We will navigate to Record page,

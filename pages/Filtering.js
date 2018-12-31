@@ -11,48 +11,52 @@ export default class Filtering extends Component {
       people: '',
       peopleOr: false,
       dreamList: [],
-      filteredList: [],
     };
 
     DreamStore.getDreamList()
     .then((list) => {
       this.setState({
         dreamList: list,
-        filteredList: list,
       });
     });
 
     this.selectorPress = this.selectorPress.bind(this);
     this.applyFilter = this.applyFilter.bind(this);
+    this.filterList = this.filterList.bind(this);
   }
 
   filterList() {
     let filteredList = [];
     let fullDreamList = this.state.dreamList;
     let names = this.state.people.split(',');
-    for(let i = 0; i < fullDreamList; ++i) {
+    console.log("FILTER PAGE: Names to filter on: " + JSON.stringify(names));
+    console.log("FULL DREAM LIST: " + JSON.stringify(fullDreamList));
+    for(let i = 0; i < fullDreamList.length; ++i) {
       let dream = fullDreamList[i];
+      console.log("DREAM: " + JSON.stringify(dream));
       let holdsSome = false;
       let holdsAll = true;
-      for (let x = 0; x < names.length; ++i) {
-        let dreamHasPerson = dream.people.includes(names[i].toLowerCase());
+      for (let x = 0; x < names.length; ++x) {
+        console.log("NAME: " + names[x]);
+        let dreamHasPerson = dream.people.includes(names[x].toLowerCase());
         holdsSome = holdsSome || dreamHasPerson;
         holdsAll = holdsAll && dreamHasPerson;
       }
 
       if(!this.state.peopleOr && holdsAll) {
         //AND selector flipped on for people field and dream holds all people in text input
+        console.log("Dream has all names. ");
         filteredList.push(dream);
       }
       else if(this.state.peopleOr && holdsSome) {
         //OR selector flipped on for people field and dream holds some people in text input
+        console.log("Dream has at least one name.");
         filteredList.push(dream);
       }
     }
-
-    this.setState({
-      filteredList: filteredList
-    });
+    
+    console.log("FINAL FILTERED LIST: \n" + JSON.stringify(filteredList));
+    return filteredList;
   }
 
   //solely for handling OR/AND selectors
@@ -76,8 +80,9 @@ export default class Filtering extends Component {
   }
 
   applyFilter() {
-    this.filterList();
-    NavigationService.navigate("Home", {filteredList: this.state.filteredList});
+    let filteredList = this.filterList();
+    console.log("FILTER PAGE: Applying filters. Navigating home. Filtered list: \n" + JSON.stringify(this.state.filteredList));
+    NavigationService.navigate("Home", {filteredList: filteredList});
   }
   
   render() {

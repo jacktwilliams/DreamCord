@@ -254,6 +254,7 @@ export default class Home extends Component {
     //when page focuses, see if a filtered List was passed
     let filteredList = this.props.navigation.getParam("filteredList", null);
     if(filteredList) {
+      console.log("HOME PAGE: Filtered list has been provided: \n" + JSON.stringify(filteredList));
       this.setState({
         filteredList: filteredList,
         refresh: !this.state.refresh,
@@ -261,6 +262,7 @@ export default class Home extends Component {
     }
     //when page focuses, decide whether a refresh is needed.
     if(this.props.navigation.getParam('refresh', false)) {
+      console.log("HOME PAGE: Refreshing our dream list.");
       this.refreshList();
     }
   }
