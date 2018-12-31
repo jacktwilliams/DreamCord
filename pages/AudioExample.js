@@ -13,6 +13,7 @@ import Sound from 'react-native-sound';
 import {AudioRecorder, AudioUtils} from 'react-native-audio';
 import AudioStore from '../utility/AudioStore';
 import { NavigationEvents } from 'react-navigation';
+import NavigationService from '../utility/NavigationService';
 
 class AudioExample extends Component {
   constructor(props) {
@@ -203,10 +204,10 @@ class AudioExample extends Component {
     }
 
     navigationReset() {
-      console.log("DID FOCUS");
+      console.log("Focus on recording page.");
       if(this.props.navigation && this.props.navigation.getParam("reset", false)) {
-        console.log("NAVIGATION PROPS PRESENT");
-        this.props.navigation.navigate("Home", {refresh: true});
+        console.log("Heading home from recording page.");
+        NavigationService.navigate("Home", {refresh: true});
       }
     }
 

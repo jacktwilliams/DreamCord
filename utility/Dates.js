@@ -6,7 +6,7 @@ export default class Dates {
 
   static formattedToDate(formatted) {
     let chunks = formatted.split("-");
-    return new Date((chunks[0] - 1), chunks[1], chunks[2]);
+    return new Date(chunks[0], (chunks[1] - 1), chunks[2]);
   }
   
 }

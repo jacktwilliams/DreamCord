@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Dimensions, TextInput, Button } from 'react-native'
 import NavigationService from '../utility/NavigationService';
 import DreamStore from '../utility/DreamStore';
+import DatePicker from 'react-native-datepicker';
+import Dates from '../utility/Dates';
 
 export default class Filtering extends Component {
 
@@ -11,18 +13,46 @@ export default class Filtering extends Component {
       people: '',
       peopleOr: false,
       dreamList: [],
+      lowDate: new Date(0), //start as 1970
+      highDate: new Date(0),
     };
 
     DreamStore.getDreamList()
     .then((list) => {
+      let {lowest, highest} = this.getOldestAndNewestDates(list);
+      console.log(lowest);
       this.setState({
         dreamList: list,
+        lowDate: lowest,
+        highDate: highest,
       });
     });
 
     this.selectorPress = this.selectorPress.bind(this);
     this.applyFilter = this.applyFilter.bind(this);
     this.filterList = this.filterList.bind(this);
+  }
+
+  getOldestAndNewestDates(list) {
+    //note that we are comparing numericals. oldest and newest hold milleseconds
+    let oldest = Date.now(); 
+    let newest =Date.parse(new Date(0).toUTCString()); //TODO: look at better ways to get milliseconds
+    console.log("OLDEST MILIS: " + oldest);
+    console.log("NEWEST MILIS: " + newest);
+    
+    for(let i = 0; i < list.length; ++i) {
+      let dreamDate = Date.parse(list[i].date.toUTCString());
+      console.log("DREAM DATE: " + dreamDate);
+      if (dreamDate < oldest) {
+        oldest = dreamDate;
+      }
+      if(dreamDate > newest) {
+        newest = dreamDate;
+      }
+    }
+    console.log("OLDEST FINAL: " + oldest + "OLDEST OBJ: " + Dates.dateToPickerFormat(new Date(oldest)));
+    //was having trouble returning Date objects and working with them. Return as strings already in picker format, ready for state assignment
+    return {oldest: Dates.dateToPickerFormat(new Date(oldest)), newest: Dates.dateToPickerFormat(new Date(newest))};
   }
 
   filterList() {
@@ -99,6 +129,48 @@ export default class Filtering extends Component {
             />
             {this._renderOrAndSelector()}
           </View>
+        </View>
+        <View style={styles.inputCont}>
+          <Text style={styles.labelText}>Occured After: </Text>
+          <DatePicker
+            format="YYYY-MM-DD"
+            style={{width: 200}}
+            date={this.state.lowDate}
+            onDateChange={(newD) => {this.setState({lowDate: newD})}}
+            confirmBtnText="Confirm"
+            cancelBtnText="Cancel"
+            customStyles={{
+              dateIcon: {
+                position: 'absolute',
+                left: 0,
+                top: 4,
+                marginLeft: 0
+              },
+              dateInput: {
+                marginLeft: 36
+              }}}
+          />
+        </View>
+        <View style={styles.inputCont}>
+          <Text style={styles.labelText}>Date</Text>
+          <DatePicker
+            format="YYYY-MM-DD"
+            style={{width: 200}}
+            date={this.state.highDate}
+            onDateChange={(newD) => {this.setState({highDate: newD})}}
+            confirmBtnText="Confirm"
+            cancelBtnText="Cancel"
+            customStyles={{
+              dateIcon: {
+                position: 'absolute',
+                left: 0,
+                top: 4,
+                marginLeft: 0
+              },
+              dateInput: {
+                marginLeft: 36
+              }}}
+          />
         </View>
         <Button title="Apply Filter" onPress={this.applyFilter} />
       </View>

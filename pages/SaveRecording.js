@@ -4,6 +4,7 @@ import DreamStore from '../utility/DreamStore';
 import DatePicker from 'react-native-datepicker';
 import Dates from '../utility/Dates';
 import { StackActions, NavigationActions } from 'react-navigation';
+import NavigationService from '../utility/NavigationService';
 
 const DreamListKey = "dreamList";
 
@@ -23,6 +24,7 @@ export default class SaveRecording extends Component {
   }
 
   handlePress() {
+    console.log("USER IS SAVING DREAM.");
     try {
       //update our dream record list with a new record corresponding with the recording we saved.
       AsyncStorage.getItem(DreamListKey)

@@ -251,6 +251,8 @@ export default class Home extends Component {
   }
 
   navigationRefresh() {
+    console.log("FOCUS on HOME. PARAMS: ");
+    console.log(JSON.stringify(this.props.navigation.state));
     //when page focuses, see if a filtered List was passed
     let filteredList = this.props.navigation.getParam("filteredList", null);
     if(filteredList) {
