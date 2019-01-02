@@ -207,7 +207,7 @@ class AudioExample extends Component {
       console.log("Focus on recording page.");
       if(this.props.navigation && this.props.navigation.getParam("reset", false)) {
         console.log("Heading home from recording page.");
-        NavigationService.navigate("Home", {refresh: true});
+        this.props.navigation.navigate("Home", {refresh: true});
       }
     }
 

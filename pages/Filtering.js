@@ -19,12 +19,12 @@ export default class Filtering extends Component {
 
     DreamStore.getDreamList()
     .then((list) => {
-      let {lowest, highest} = this.getOldestAndNewestDates(list);
-      console.log(lowest);
+      let {oldest, newest} = this.getOldestAndNewestDates(list);
+      console.log(oldest);
       this.setState({
         dreamList: list,
-        lowDate: lowest,
-        highDate: highest,
+        lowDate: oldest,
+        highDate: newest,
       });
     });
 
@@ -36,7 +36,7 @@ export default class Filtering extends Component {
   getOldestAndNewestDates(list) {
     //note that we are comparing numericals. oldest and newest hold milleseconds
     let oldest = Date.now(); 
-    let newest =Date.parse(new Date(0).toUTCString()); //TODO: look at better ways to get milliseconds
+    let newest = Date.parse(new Date(0).toUTCString()); //TODO: look at better ways to get milliseconds
     console.log("OLDEST MILIS: " + oldest);
     console.log("NEWEST MILIS: " + newest);
     
@@ -50,7 +50,7 @@ export default class Filtering extends Component {
         newest = dreamDate;
       }
     }
-    console.log("OLDEST FINAL: " + oldest + "OLDEST OBJ: " + Dates.dateToPickerFormat(new Date(oldest)));
+    console.log("OLDEST FINAL: " + oldest + "\nOLDEST OBJ: " + Dates.dateToPickerFormat(new Date(oldest)));
     //was having trouble returning Date objects and working with them. Return as strings already in picker format, ready for state assignment
     return {oldest: Dates.dateToPickerFormat(new Date(oldest)), newest: Dates.dateToPickerFormat(new Date(newest))};
   }
