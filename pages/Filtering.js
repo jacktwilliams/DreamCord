@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Dimensions, TextInput, Button } from 'react-native'
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Dimensions, TextInput, Button, AsyncStorage } from 'react-native'
 import NavigationService from '../utility/NavigationService';
 import DreamStore from '../utility/DreamStore';
 import DatePicker from 'react-native-datepicker';
 import Dates from '../utility/Dates';
 
+const FILTERSTATEKEY = "FILTERSTATE";
 export default class Filtering extends Component {
 
   constructor() {
@@ -17,8 +18,20 @@ export default class Filtering extends Component {
       highDate: new Date(0),
     };
 
-    console.log("FILTERING CONSTRUCTOR");
+    //first set our state with the persistent data we have saved. 
+    let setStateWithParams = (params) => {
+      this.setState({
+        people: params.people,
+        peopleOr: params.peopleOr,
+      });
+    };
+    setStateWithParams = setStateWithParams.bind(this);
+    this.getParameters()
+    .then((params) => {
+      setStateWithParams(params);
+    });
 
+    //load dream list (will be ready to be filtered), and find the default values for the datepickers.
     DreamStore.getDreamList()
     .then((list) => {
       let {oldest, newest} = this.getOldestAndNewestDates(list);
@@ -117,13 +130,26 @@ export default class Filtering extends Component {
     );
   }
   
-  //go back to home. Send filtered list
+  //go back to home. Send filtered list. We will save our filter parameters to be persistent.
   applyFilter() {
     let fullList = this.state.dreamList;
     let filteredList = this.filterList(fullList);
     filteredList = this.filterOnDate(filteredList);
     console.log("FILTER PAGE: Applying filters. Navigating home. Filtered list: \n" + JSON.stringify(filteredList));
     NavigationService.navigate("Home", {filteredList: filteredList});
+    this.saveParameters();
+  }
+
+  saveParameters() {
+    AsyncStorage.setItem(FILTERSTATEKEY, JSON.stringify({
+      people: this.state.people,
+      peopleOr: this.state.peopleOr,
+    }));
+  }
+
+  async getParameters() {
+    let stringParams = await AsyncStorage.getItem(FILTERSTATEKEY);
+    return await JSON.parse(stringParams); 
   }
   
   render() {
