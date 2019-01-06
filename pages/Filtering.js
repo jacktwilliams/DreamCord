@@ -17,6 +17,8 @@ export default class Filtering extends Component {
       highDate: new Date(0),
     };
 
+    console.log("FILTERING CONSTRUCTOR");
+
     DreamStore.getDreamList()
     .then((list) => {
       let {oldest, newest} = this.getOldestAndNewestDates(list);
@@ -37,12 +39,9 @@ export default class Filtering extends Component {
     //note that we are comparing numericals. oldest and newest hold milleseconds
     let oldest = Date.now(); 
     let newest = Date.parse(new Date(0).toUTCString()); //TODO: look at better ways to get milliseconds
-    console.log("OLDEST MILIS: " + oldest);
-    console.log("NEWEST MILIS: " + newest);
     
     for(let i = 0; i < list.length; ++i) {
       let dreamDate = Date.parse(list[i].date.toUTCString());
-      console.log("DREAM DATE: " + dreamDate);
       if (dreamDate < oldest) {
         oldest = dreamDate;
       }
@@ -55,19 +54,31 @@ export default class Filtering extends Component {
     return {oldest: Dates.dateToPickerFormat(new Date(oldest)), newest: Dates.dateToPickerFormat(new Date(newest))};
   }
 
-  filterList() {
+  filterOnDate(fullDreamList) {
     let filteredList = [];
-    let fullDreamList = this.state.dreamList;
+    let ceiling = Date.parse(Dates.formattedToDate(this.state.highDate).toUTCString());
+    let floor = Date.parse(Dates.formattedToDate(this.state.lowDate).toDateString());
+
+    for(let i = 0; i < fullDreamList.length; ++i) {
+      let dreamDate = Date.parse(fullDreamList[i].date.toUTCString());
+      if(floor <= dreamDate && dreamDate <= ceiling) {
+        filteredList.push(fullDreamList[i]);
+      }
+    }
+
+    return filteredList;
+  }
+
+  filterList(fullDreamList) {
+    let filteredList = [];
     let names = this.state.people.split(',');
-    console.log("FILTER PAGE: Names to filter on: " + JSON.stringify(names));
-    console.log("FULL DREAM LIST: " + JSON.stringify(fullDreamList));
+
     for(let i = 0; i < fullDreamList.length; ++i) {
       let dream = fullDreamList[i];
-      console.log("DREAM: " + JSON.stringify(dream));
       let holdsSome = false;
       let holdsAll = true;
+
       for (let x = 0; x < names.length; ++x) {
-        console.log("NAME: " + names[x]);
         let dreamHasPerson = dream.people.includes(names[x].toLowerCase());
         holdsSome = holdsSome || dreamHasPerson;
         holdsAll = holdsAll && dreamHasPerson;
@@ -75,17 +86,14 @@ export default class Filtering extends Component {
 
       if(!this.state.peopleOr && holdsAll) {
         //AND selector flipped on for people field and dream holds all people in text input
-        console.log("Dream has all names. ");
         filteredList.push(dream);
       }
       else if(this.state.peopleOr && holdsSome) {
         //OR selector flipped on for people field and dream holds some people in text input
-        console.log("Dream has at least one name.");
         filteredList.push(dream);
       }
     }
     
-    console.log("FINAL FILTERED LIST: \n" + JSON.stringify(filteredList));
     return filteredList;
   }
 
@@ -108,10 +116,13 @@ export default class Filtering extends Component {
       </View>
     );
   }
-
+  
+  //go back to home. Send filtered list
   applyFilter() {
-    let filteredList = this.filterList();
-    console.log("FILTER PAGE: Applying filters. Navigating home. Filtered list: \n" + JSON.stringify(this.state.filteredList));
+    let fullList = this.state.dreamList;
+    let filteredList = this.filterList(fullList);
+    filteredList = this.filterOnDate(filteredList);
+    console.log("FILTER PAGE: Applying filters. Navigating home. Filtered list: \n" + JSON.stringify(filteredList));
     NavigationService.navigate("Home", {filteredList: filteredList});
   }
   

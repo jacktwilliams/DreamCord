@@ -270,6 +270,7 @@ export default class Home extends Component {
         this.refreshList();
       }
       */
+      console.log("Refreshing list.");
       this.refreshList();
     }
   }
