@@ -46,6 +46,7 @@ export default class Filtering extends Component {
     this.selectorPress = this.selectorPress.bind(this);
     this.applyFilter = this.applyFilter.bind(this);
     this.filterList = this.filterList.bind(this);
+    this.resetFilters = this.resetFilters.bind(this);
   }
 
   getOldestAndNewestDates(list) {
@@ -151,6 +152,16 @@ export default class Filtering extends Component {
     let stringParams = await AsyncStorage.getItem(FILTERSTATEKEY);
     return await JSON.parse(stringParams); 
   }
+
+  resetFilters() {
+    let {oldest, newest} = this.getOldestAndNewestDates(this.state.dreamList);
+    this.setState({
+      lowDate: oldest,
+      highDate: newest,
+      people: '',
+      peopleOr: false
+    });
+  }
   
   render() {
     return (
@@ -209,7 +220,14 @@ export default class Filtering extends Component {
               }}}
           />
         </View>
-        <Button title="Apply Filter" onPress={this.applyFilter} />
+        <View style={styles.actionButtonsCont}>
+          <TouchableOpacity style={[styles.actionButton, {marginRight: width * .05}]} onPress={this.resetFilters} >
+            <Text>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={this.applyFilter}>
+            <Text>Apply Filters</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -256,5 +274,19 @@ var styles = StyleSheet.create({
   innerInputCont: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  actionButtonsCont: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+
+  },
+  actionButton: {
+    borderWidth: 2,
+    borderColor: 'black',
+    height: 40,
+    width: width * .33,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
+
 });
