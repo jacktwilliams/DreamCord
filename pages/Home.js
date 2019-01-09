@@ -273,13 +273,6 @@ export default class Home extends Component {
       });
     }
     else {
-      /* Having issue with React Navigation params when crossing the from one stackNavigator to another
-      (switching tabs). We will just always refresh when we nav to home.
-      if(this.props.navigation.getParam('refresh', false)) {
-        console.log("HOME PAGE: Refreshing our dream list.");
-        this.refreshList();
-      }
-      */
       console.log("Refreshing list.");
       this.refreshList();
     }

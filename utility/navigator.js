@@ -5,25 +5,14 @@ import SaveRecording from '../pages/SaveRecording';
 import Filtering from '../pages/Filtering';
 import { View} from 'react-native'
 
-const RecordNav = createStackNavigator({
+const Nav = createStackNavigator({
+  Home: Home,
+  Filtering: Filtering,
   Record: AudioExample,
   SaveRecording: SaveRecording,
 },
 {
-  initialRouteName: "Record"
-});
-
-const HomeNav = createStackNavigator({
-  Home: Home,
-  Filtering: Filtering,
-},
-{
   initialRouteName: "Home"
 });
-const Nav = createBottomTabNavigator(
-  {
-    HomeTab: HomeNav,
-    RecordTab: RecordNav,
-  });
   
 export default Nav;

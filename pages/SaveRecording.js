@@ -33,7 +33,8 @@ export default class SaveRecording extends Component {
         .then((DList) => {
           let DreamList = JSON.parse(DList);
           let recordId = this.state.recordId;
-          let indexToReplace = DreamList.findIndex(function (record) {record.id === recordId});
+          let indexToReplace = DreamList.findIndex(function (record) { return record.id === recordId; });
+          console.log("INDEX TO REPLACE: \n" + indexToReplace);
           let newRecord = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people);
           DreamList[indexToReplace] = newRecord;
           saveDL(DreamList);
@@ -51,14 +52,17 @@ export default class SaveRecording extends Component {
         });
       }
       let saveDL = function(DL) {
-        AsyncStorage.setItem(DREAMLISTKEY, JSON.stringify(DL));
-        //head back to home and wipe our actions
-        console.log("Heading home. Page should reset.");
-        const resetAction = StackActions.reset({
-          index: 0,
-          actions: [NavigationActions.navigate({ routeName: 'Home', params: {refresh: true} })],
-        });
-        this.props.navigation.dispatch(resetAction);
+        AsyncStorage.setItem(DREAMLISTKEY, JSON.stringify(DL))
+        .then(() => {
+          console.log("SAVED EDITED DREAM: \n" + JSON.stringify(DL));
+          //head back to home and wipe our actions
+          console.log("Heading home. Page should reset.");
+          const resetAction = StackActions.reset({
+            index: 0,
+            actions: [NavigationActions.navigate({ routeName: 'Home', params: {refresh: true} })],
+          });
+          this.props.navigation.dispatch(resetAction);
+        })
       }.bind(this);
     }
     catch(e) {
