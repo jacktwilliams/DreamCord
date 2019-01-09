@@ -22,8 +22,8 @@ const HomeNav = createStackNavigator({
 });
 const Nav = createBottomTabNavigator(
   {
-    Home: HomeNav,
-    Record: RecordNav,
+    HomeTab: HomeNav,
+    RecordTab: RecordNav,
   });
   
 export default Nav;

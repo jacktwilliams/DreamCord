@@ -3,59 +3,106 @@ import { View, Text, TextInput, StyleSheet, Button, AsyncStorage, Dimensions } f
 import DreamStore from '../utility/DreamStore';
 import DatePicker from 'react-native-datepicker';
 import Dates from '../utility/Dates';
-import { StackActions, NavigationActions } from 'react-navigation';
+import { StackActions, NavigationActions, NavigationEvents } from 'react-navigation';
 import NavigationService from '../utility/NavigationService';
 
-const DreamListKey = "dreamList";
+const DREAMLISTKEY = "dreamList";
 
 export default class SaveRecording extends Component {
   constructor(props) {
     super(props);
-    let today = new Date();
-
-    this.state = { 
+    this.state = {
       title: '',
-      recordId: this.props.navigation.getParam("recordId", -1),  
-      date: Dates.dateToPickerFormat(today),
+      recordId: -1,
+      date: Dates.dateToPickerFormat(new Date()),
       people: '',
-    };
+      editMode: false, //indicates that we are editing an existing record. Matters for saving. (handlePress).
+    }
+    //navigationRefresh does constructor-like functionality based on which page navigated here.
 
     this.handlePress = this.handlePress.bind(this);
+    this.navigationRefresh = this.navigationRefresh.bind(this);
   }
 
+  //TODO: refactor?
   handlePress() {
-    console.log("USER IS SAVING DREAM.");
     try {
-      //update our dream record list with a new record corresponding with the recording we saved.
-      AsyncStorage.getItem(DreamListKey)
-      .then((DList) => {
-        let DreamList = JSON.parse(DList);
-        let record = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people);
-        DreamList.unshift(record);
-
-        AsyncStorage.setItem(DreamListKey, JSON.stringify(DreamList));
+      if(this.state.editMode) {
+        console.log("USER IS SAVING THEIR EDITS.");
+        AsyncStorage.getItem(DREAMLISTKEY)
+        .then((DList) => {
+          let DreamList = JSON.parse(DList);
+          let recordId = this.state.recordId;
+          let indexToReplace = DreamList.findIndex(function (record) {record.id === recordId});
+          let newRecord = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people);
+          DreamList[indexToReplace] = newRecord;
+          saveDL(DreamList);
+        });
+      }
+      else {
+        console.log("USER IS SAVING A DREAM CORRESPONDING TO RECORDING");
+        //update our dream record list with a new record corresponding with the recording we saved.
+        AsyncStorage.getItem(DREAMLISTKEY)
+        .then((DList) => {
+          let DreamList = JSON.parse(DList);
+          let record = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people);
+          DreamList.unshift(record);
+          saveDL(DreamList);
+        });
+      }
+      let saveDL = function(DL) {
+        AsyncStorage.setItem(DREAMLISTKEY, JSON.stringify(DL));
         //head back to home and wipe our actions
         console.log("Heading home. Page should reset.");
         const resetAction = StackActions.reset({
           index: 0,
-          //Home is not on this nav stack. Adding it doesn't work well. We will navigate to Record page,
-          // and request that it sends us home with the refresh param flipped on
-          actions: [NavigationActions.navigate({ routeName: 'Record', params: {reset: true} })],
+          actions: [NavigationActions.navigate({ routeName: 'Home', params: {refresh: true} })],
         });
         this.props.navigation.dispatch(resetAction);
-      });
+      }.bind(this);
     }
     catch(e) {
       console.log("Error saving recording record: \n" + e);
-      //TODO: Maybe move the recording to purgatory.
+      //TODO: Maybe move the recording to purgatory that indicates no dream corresponds to audio.
       this.props.navigation.navigate("Home", {refresh: true});
     }
   }
 
+  navigationRefresh() {
+    console.log("Made it to SaveRecording page.");
+    //will either arrive here after saving recording (from recordPage),
+    let recordId = this.props.navigation.getParam("recordId", null);
+    if(recordId) {
+      console.log("Dream has been recorded. User shall enter data.");
+      let today = new Date();
+      this.setState({
+        title: '',
+        recordId: recordId,  
+        date: Dates.dateToPickerFormat(today),
+        people: '',
+      });
+    }
+
+    //OR from 'edit' button on home page
+    let recordToEdit = this.props.navigation.getParam("record", null);
+    if(recordToEdit) {
+      let record = recordToEdit;
+      console.log("Editing dream. Record sent to edit: \n" + JSON.stringify(record));
+
+      this.setState({
+        title: record.title,
+        recordId: record.id,
+        date: Dates.dateToPickerFormat(record.date),
+        people: record.people.join(", "),
+        editMode: true,
+      });
+    }
+  }
 
   render() {
     return (
       <View style={styles.container}>
+        <NavigationEvents onDidFocus={this.navigationRefresh} />
         <View style={[styles.titleCont, styles.inputCont]}>
           <Text style={styles.labelText}>Title</Text>
           <TextInput
@@ -104,8 +151,8 @@ export default class SaveRecording extends Component {
         />
       </View>
     );
-    }
-   }
+  }
+}
 var {height, width} = Dimensions.get('window');
 var styles = StyleSheet.create({
   container: {

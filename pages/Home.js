@@ -75,6 +75,7 @@ export default class Home extends Component {
     this.pausePlayback = this.pausePlayback.bind(this);
     this.stopPlayback = this.stopPlayback.bind(this);
     this.navigationRefresh = this.navigationRefresh.bind(this);
+    this.editRecord = this.editRecord.bind(this);
   }
 
   refreshList() {
@@ -189,6 +190,10 @@ export default class Home extends Component {
     this.setState({playbackObject: null});
   }
 
+  editRecord(record) {
+    this.props.navigation.navigate({routeName: "SaveRecording", params: {record: record}});
+  }
+
   _renderRecord(record) {
     record = record.item;
     if(this.state.selectedDreams.has(record.id)) {
@@ -211,9 +216,14 @@ export default class Home extends Component {
 
       return (
         <View style={styles.recordCont}>
-          <TouchableOpacity onPress={() => {this.handleRecordPress(record.id)}}>
-            <Text>{record.title}</Text>
-          </TouchableOpacity>
+          <View style={styles.recordTopBarCont}>
+            <TouchableOpacity onPress={() => {this.handleRecordPress(record.id)}}>
+              <Text>{record.title}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {this.editRecord(record)}}>
+              <Text>Edit</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.infoCont}>
             <View style={styles.dateCont}>
               <TouchableOpacity style={styles.dateButton} onPress={() => {this.filterBySingleFieldValue('date', record.date)}}>
@@ -336,6 +346,9 @@ var styles = StyleSheet.create({
   dateButton: {
     borderWidth: 2,
     borderColor: 'black',
-
+  },
+  recordTopBarCont: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   }
 });
