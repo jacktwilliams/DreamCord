@@ -13,18 +13,19 @@ class HeaderBar extends Component {
     super(props);
   }
 
-  goToFiltering() {
-    NavigationService.navigate("Filtering");
-  }
-
   render() {
     let styles = headStyles;
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Dreams</Text>
-        <TouchableOpacity style={styles.filterButton} onPress={this.goToFiltering}>
-          <Text>Filter Page</Text>
-        </TouchableOpacity>
+        <View style={styles.navButtons}>
+          <TouchableOpacity style={styles.navButton} onPress={() => {NavigationService.navigate("Filtering")}}>
+            <Text>Filter</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.navButton} onPress={() => {NavigationService.navigate("Record")}}>
+            <Text>Record</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -41,7 +42,10 @@ var headStyles = StyleSheet.create({
     fontSize: 20,
     marginLeft: '2%',
   },
-  filterButton: {
+  navButtons: {
+    flexDirection: 'row',
+  },
+  navButton: {
     borderColor: 'black',
     borderWidth: 2,
     marginRight: '2%',
