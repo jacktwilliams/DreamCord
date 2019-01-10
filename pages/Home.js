@@ -98,16 +98,30 @@ export default class Home extends Component {
        For example, when the user clicks the name of a person who was in a dream.
        The touchtarget will pass in the 'field' which is 'people' in this instance 
        This field name maps to a function which says whether to include the record in the filtered list */
-    let byPeople = function (record, name) {
+    console.log("Filtering on: " + fieldVal);
+    function byPerson (record, name) {
       return record.people.includes(name);
     }
-    let byDate = function (record, date) {
+    function byPlace(record, place) {
+      return record.places.includes(place);
+    }
+    function byThing(record, thing) {
+      return record.things.includes(thing);
+    }
+    function byFlag(record, flag) {
+      console.log("RECORD PASSED TO FLAG FILTER FUNC: \n" + JSON.stringify(record));
+      return record.flags.includes(flag);
+    }
+    function byDate (record, date) {
       return record.date.toDateString() === date.toDateString()
     }
     //closest thing to Map literal syntax
     let inclusionFuncPerField = new Map([
-      ['people', byPeople],
+      ['people', byPerson],
       ['date', byDate],
+      ['places', byPlace],
+      ['things', byThing],
+      ['flags', byFlag],
     ]);
 
     //console.log(inclusionFuncPerField.get('people'));
@@ -201,22 +215,50 @@ export default class Home extends Component {
   _renderRecord(record) {
     record = record.item;
     if(this.state.selectedDreams.has(record.id)) {
-      let peopleTags = [];
-      let thereArePeople = false;
-      for(let i = 0; i < record.people.length; ++i) {
-        let name=record.people[i];
-        //for now it is simpler to have the people list's initial state in SaveRecording be '' instead of null
-        //and to handle this here.
-        if(name != ['']) {
-          thereArePeople = true; // there is at least one person.
-          let touchable = (
-            <TouchableOpacity style={styles.personTag} key={i} onPress={() => {this.filterBySingleFieldValue('people', name)}}>
-              <Text>{name}</Text>
-            </TouchableOpacity>
-          );
-          peopleTags.push(touchable);
+
+      let nounData = {
+        people: {
+          touchables: [],
+          exists: false,
+          handler: (item) => {this.filterBySingleFieldValue('people', item)},
+        },
+        places: {
+          touchables: [],
+          exists: false,
+          handler: (item) => {this.filterBySingleFieldValue('places', item)},
+        },
+        things: {
+          touchables: [],
+          exists: false,
+          handler: (item) => {this.filterBySingleFieldValue('things', item)},
+        },
+        flags: {
+          touchables: [],
+          exists: false,
+          handler: (item) => {this.filterBySingleFieldValue('flags', item)},
+        },
+      };
+
+      function listToTouchables(textList, data) {
+        for(let i = 0; i < textList.length; ++i) {
+          let item = textList[i];
+          //for now we handle empty text inputs here by checking if the list is one item: ''
+          if(item != ['']) {
+            data.exists = true;
+            let touchable = (
+              <TouchableOpacity style={styles.nounTag} key={i} onPress={() => {data.handler(item)}}>
+                <Text>{item}</Text>
+              </TouchableOpacity>
+            );
+            data.touchables.push(touchable);
+          }
         }
       }
+
+      listToTouchables(record.people, nounData.people);
+      listToTouchables(record.places, nounData.places);
+      listToTouchables(record.things, nounData.things);
+      listToTouchables(record.flags, nounData.flags);
 
       return (
         <View style={styles.recordCont}>
@@ -234,10 +276,24 @@ export default class Home extends Component {
                 <Text>{record.date.toDateString()}</Text>
               </TouchableOpacity>
             </View>
-            <View style={styles.peopleCont}>
-              <Text key={-1} style={{marginRight: '2%'}}>{thereArePeople ? "People: " : ""}</Text>
-              {peopleTags}
+
+            <View style={styles.nounCont}>
+              <Text key={-1} style={{marginRight: '2%'}}>{nounData.people.exists ? "People: " : ""}</Text>
+              {nounData.people.touchables}
             </View>
+            <View style={styles.nounCont}>
+              <Text key={-1} style={{marginRight: '2%'}}>{nounData.places.exists ? "Places: " : ""}</Text>
+              {nounData.places.touchables}
+            </View>
+            <View style={styles.nounCont}>
+              <Text key={-1} style={{marginRight: '2%'}}>{nounData.things.exists ? "Things: " : ""}</Text>
+              {nounData.things.touchables}
+            </View>
+            <View style={styles.nounCont}>
+              <Text key={-1} style={{marginRight: '2%'}}>{nounData.flags.exists ? "Flags: " : ""}</Text>
+              {nounData.flags.touchables}
+            </View>
+
           </View> 
           <View style={styles.playbackCont}>
             <TouchableOpacity style={styles.playbackButtons} onPress={() => {this.playback(record.id)}}>
@@ -328,12 +384,12 @@ var styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 2,
   },
-  peopleCont: {
+  nounCont: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginTop: '2%',
   },
-  personTag: {
+  nounTag: {
     paddingLeft: '1%',
     paddingRight: '1%',
     borderWidth: 1,

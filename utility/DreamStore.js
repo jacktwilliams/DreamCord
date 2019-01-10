@@ -5,17 +5,24 @@ const STORE = AsyncStorage;
 const DREAMLISTKEY = "dreamList";
 export default class DreamStore {
 
-  static makeRecord(recordId, title, date, people) {
-    let peopleList = people.split(',').map((element) => {
-      let newElem = element.replace(' ', '');
-      newElem = newElem.toLowerCase();
-      return newElem;
-    });
+  static makeRecord(recordId, title, date, people, places, things, flags) {
+    
+    function transformTextInputs(text, upper) {
+      let transformed = text.split(',').map((element) => {
+        let newElem = element.replace(' ', '');
+        newElem = (upper) ? newElem.toUpperCase() : newElem.toLowerCase();
+        return newElem;
+      });
+      return transformed;
+    }
     let record = {
       id: recordId, 
       title: title,
       date: Date.parse(date.toUTCString()), //store milliseconds and we can construct a new object on other end
-      people: peopleList,
+      people: transformTextInputs(people),
+      places: transformTextInputs(places),
+      things: transformTextInputs(things),
+      flags: transformTextInputs(flags, true),
     }
     console.log("NEW RECORD: " + JSON.stringify(record));
     return record;

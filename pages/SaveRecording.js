@@ -12,10 +12,13 @@ export default class SaveRecording extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: '',
       recordId: -1,
+      title: '',
       date: Dates.dateToPickerFormat(new Date()),
       people: '',
+      places: '',
+      things: '',
+      flags: '',
       editMode: false, //indicates that we are editing an existing record. Matters for saving. (handlePress).
     }
     //navigationRefresh does constructor-like functionality based on which page navigated here.
@@ -27,6 +30,8 @@ export default class SaveRecording extends Component {
   //TODO: refactor?
   handlePress() {
     try {
+      let newRecord = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people, 
+        this.state.places, this.state.things, this.state.flags);
       if(this.state.editMode) {
         console.log("USER IS SAVING THEIR EDITS.");
         AsyncStorage.getItem(DREAMLISTKEY)
@@ -35,7 +40,6 @@ export default class SaveRecording extends Component {
           let recordId = this.state.recordId;
           let indexToReplace = DreamList.findIndex(function (record) { return record.id === recordId; });
           console.log("INDEX TO REPLACE: \n" + indexToReplace);
-          let newRecord = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people);
           DreamList[indexToReplace] = newRecord;
           saveDL(DreamList);
         });
@@ -46,15 +50,13 @@ export default class SaveRecording extends Component {
         AsyncStorage.getItem(DREAMLISTKEY)
         .then((DList) => {
           let DreamList = JSON.parse(DList);
-          let record = DreamStore.makeRecord(this.state.recordId, this.state.title, Dates.formattedToDate(this.state.date), this.state.people);
-          DreamList.unshift(record);
+          DreamList.unshift(newRecord);
           saveDL(DreamList);
         });
       }
       let saveDL = function(DL) {
         AsyncStorage.setItem(DREAMLISTKEY, JSON.stringify(DL))
         .then(() => {
-          console.log("SAVED EDITED DREAM: \n" + JSON.stringify(DL));
           //head back to home and wipe our actions
           console.log("Heading home. Page should reset.");
           const resetAction = StackActions.reset({
@@ -93,16 +95,24 @@ export default class SaveRecording extends Component {
       let record = recordToEdit;
       console.log("Editing dream. Record sent to edit: \n" + JSON.stringify(record));
 
+      function transformTextInputs(list) {
+        return list.join(", ");
+      }
+
       this.setState({
         title: record.title,
         recordId: record.id,
         date: Dates.dateToPickerFormat(record.date),
-        people: record.people.join(", "),
+        people: transformTextInputs(record.people),
+        places: transformTextInputs(record.places),
+        things: transformTextInputs(record.things),
+        flags: transformTextInputs(record.flags),
         editMode: true,
       });
     }
   }
 
+  //TODO: refactor with a method "_renderNounTextInput"
   render() {
     return (
       <View style={styles.container}>
@@ -146,6 +156,24 @@ export default class SaveRecording extends Component {
             onChangeText={(text) => this.setState({people: text})}
             placeholder="People who were involved"
             value={this.state.people}
+          />
+          <TextInput
+            style={[styles.textIn, styles.inputObj]}
+            onChangeText={(text) => this.setState({places: text})}
+            placeholder="Places in dream"
+            value={this.state.places}
+          />
+          <TextInput
+            style={[styles.textIn, styles.inputObj]}
+            onChangeText={(text) => this.setState({things: text})}
+            placeholder="Things in dream"
+            value={this.state.things}
+          />
+          <TextInput
+            style={[styles.textIn, styles.inputObj]}
+            onChangeText={(text) => this.setState({flags: text})}
+            placeholder="Flags to attach to record. (ex. 'Lucid')."
+            value={this.state.flags}
           />
         </View>
 
