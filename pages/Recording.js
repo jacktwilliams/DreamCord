@@ -15,7 +15,7 @@ import AudioStore from '../utility/AudioStore';
 import { NavigationEvents } from 'react-navigation';
 import NavigationService from '../utility/NavigationService';
 
-class AudioExample extends Component {
+class Recording extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -129,23 +129,24 @@ class AudioExample extends Component {
 
         if (Platform.OS === 'android') {
           this._finishRecording(true, filePath);
-          
-          AudioStore.saveRecording(filePath)
-          .then((recordId) => {
-            console.log("RecordPage " + recordId);
-            this.props.navigation.navigate('SaveRecording', {recordId : recordId});
-          }) //returns the number id of dream we save
-
-
           return filePath;
         }     
       }
       catch (error) {
         console.error(error);
       } 
+    }
 
-
-      
+    //TODO: User-friendly warnings
+    async save() {
+      if(this.state.recording) {
+        console.log("Can't save. Still recording.");
+      }
+      AudioStore.saveRecording(this.state.audioPath)
+      .then((recordId) => {
+        console.log("RecordPage " + recordId);
+        this.props.navigation.navigate('SaveRecording', {recordId : recordId}); //go collect data about recording.
+      });
     }
 
     async _play() {
@@ -224,6 +225,7 @@ class AudioExample extends Component {
             {this._renderButton("STOP", () => {this._stop()} )}
             {/* {this._renderButton("PAUSE", () => {this._pause()} )} */}
             {this._renderPauseButton(() => {this.state.paused ? this._resume() : this._pause()})}
+            {this._renderButton("SAVE", () => {this.save()} )}
             <Text style={styles.progressText}>{this.state.currentTime}s</Text>
           </View>
         </View>
@@ -247,7 +249,8 @@ class AudioExample extends Component {
       color: "#fff"
     },
     button: {
-      padding: 20
+      padding: 20,
+      paddingBottom: 15,
     },
     disabledButtonText: {
       color: '#eee'
@@ -263,4 +266,4 @@ class AudioExample extends Component {
 
   });
 
-export default AudioExample;
+export default Recording;
