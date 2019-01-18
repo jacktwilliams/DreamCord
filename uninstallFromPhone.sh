@@ -1,2 +1,2 @@
 #!/bin/bash
-adb uninstall "com.awesomeproject""
+adb uninstall "com.awesomeproject"

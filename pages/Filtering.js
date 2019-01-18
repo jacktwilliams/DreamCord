@@ -19,11 +19,13 @@ export default class Filtering extends Component {
     };
 
     //first set our state with the persistent data we have saved. 
-    let setStateWithParams = (params) => {
-      this.setState({
-        people: params.people,
-        peopleOr: params.peopleOr,
-      });
+    function setStateWithParams (params) {
+      if(params) {
+        this.setState({
+          people: params.people,
+          peopleOr: params.peopleOr,
+        });
+      }
     };
     setStateWithParams = setStateWithParams.bind(this);
     this.getParameters()
