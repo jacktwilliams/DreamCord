@@ -9,7 +9,7 @@ export default class DreamStore {
     
     function transformTextInputs(text, upper) {
       let transformed = text.split(',').map((element) => {
-        let newElem = element.replace(' ', '');
+        let newElem = element.trim();
         newElem = (upper) ? newElem.toUpperCase() : newElem.toLowerCase();
         return newElem;
       });

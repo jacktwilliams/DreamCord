@@ -5,6 +5,7 @@ import DatePicker from 'react-native-datepicker';
 import Dates from '../utility/Dates';
 import { StackActions, NavigationActions, NavigationEvents } from 'react-navigation';
 import NavigationService from '../utility/NavigationService';
+import AttrList from '../components/AttrList';
 
 const DREAMLISTKEY = "dreamList";
 
@@ -16,6 +17,7 @@ export default class SaveRecording extends Component {
       title: '',
       date: Dates.dateToPickerFormat(new Date()),
       people: '',
+      peopleField: '',
       places: '',
       things: '',
       flags: '',
@@ -25,6 +27,7 @@ export default class SaveRecording extends Component {
 
     this.handlePress = this.handlePress.bind(this);
     this.navigationRefresh = this.navigationRefresh.bind(this);
+    //this.textIn = this.textIn.bind(this);
   }
 
   //TODO: refactor?
@@ -112,7 +115,64 @@ export default class SaveRecording extends Component {
     }
   }
 
-  //TODO: refactor with a method "_renderNounTextInput"
+  _peopleInput(text, addTagFunc) {
+    let remFunc = function removeTag(person) {
+      let newPeople = this.state.people;
+      newPeople.replace("," + person, "");
+      this.setState({
+        people: newPeople,
+      });
+    }.bind(this);
+
+    if (text.indexOf(',') > 1) {
+      let newPerson = text.substring(0, text.indexOf(',')).trim().toLowerCase();
+      if (!this.state.people.includes(newPerson)) {
+        this.setState({
+          people: this.state.people + newPerson + ",", 
+          peopleField: text.substring(text.indexOf(',') + 1)
+        });
+        addTagFunc(newPerson, remFunc);
+      }
+    }
+    else {
+      this.setState({
+        peopleField: text,
+      });
+    }
+  }
+
+//  textIn(text, field) {
+    /*
+    let fieldToData = new Map([
+        ['people', {finalText: this.state.people, boxText: this.state.peopleField, tags: this.state.peopleTags}],
+    ]);
+    */
+  //  let fieldToData = new Map([
+  //    ['people', function (page, boxText) {
+  //      if(boxText) {
+  //        page.setState({
+  //          peopleField: boxText
+  //        });
+  //      }
+  //      else {
+  //        page.setState({
+  //          peopleField: '',
+  //        });
+  //      }
+  //    }]
+  //  ])
+  //   let setStateFunc = fieldToData.get(field);
+  //   let boxText = text;
+  //   let finalText;
+  //   let peopleTags;
+
+  //   if(text.indexOf(',') > 1) {
+  //     finalText = text.substring(0, text.indexOf(','));
+  //     boxText = text.substring(text.indexOf(',') + 1);
+  //     setStateFunc(this, boxText);
+  //   }
+  // }
+
   render() {
     return (
       <View style={styles.container}>
@@ -151,24 +211,25 @@ export default class SaveRecording extends Component {
 
         <View style={styles.inputCont}>
           <Text style={styles.labelText}>People</Text>
-          <TextInput
-            style={[styles.textIn, styles.inputObj]}
-            onChangeText={(text) => this.setState({people: text})}
-            placeholder="People who were involved"
-            value={this.state.people}
-          />
+          <View style={styles.inputBlock} >
+            <AttrList inputHandler = {this._peopleInput.bind(this)} displayText={this.state.peopleField} />
+          </View>
+
+          <Text style={styles.labelText}>Places</Text>
           <TextInput
             style={[styles.textIn, styles.inputObj]}
             onChangeText={(text) => this.setState({places: text})}
             placeholder="Places in dream"
             value={this.state.places}
           />
+          <Text style={styles.labelText}>Things</Text>
           <TextInput
             style={[styles.textIn, styles.inputObj]}
             onChangeText={(text) => this.setState({things: text})}
             placeholder="Things in dream"
             value={this.state.things}
           />
+          <Text style={styles.labelText}>Flags</Text>
           <TextInput
             style={[styles.textIn, styles.inputObj]}
             onChangeText={(text) => this.setState({flags: text})}
@@ -201,6 +262,11 @@ var styles = StyleSheet.create({
   inputCont: {
     marginBottom: height * .03,
   },
+  inputBlock: {
+    marginBottom: height * .01,
+    height: height * .1,
+    justifyContent: 'flex-start',
+  },
   titleCont: {
     marginTop: height * .01,
   },
@@ -209,5 +275,8 @@ var styles = StyleSheet.create({
     textDecorationLine: 'underline',
     marginBottom: height * .01,
     left: -5
+  },
+  peopleTagBox: {
+    flexDirection: 'row',
   }
   });
